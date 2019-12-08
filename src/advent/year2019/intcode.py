@@ -1,7 +1,13 @@
+from collections import deque
+from typing import Deque
+from typing import Dict
+from typing import Iterable
+from typing import List
+
 from advent.load import read_input
 
 
-def op(code: int, size: int, write: bool = False):
+def op(code: int, size: int, write=False):
     def wrapper(f):
         f.op = code
         f.size = size
@@ -21,22 +27,28 @@ def find_ops(cls):
 
 @find_ops
 class Interpreter:
-    _op_to_name = {}
+    _op_to_name: Dict[int, str] = {}
 
-    def __init__(self, data, input=()):
+    def __init__(
+        self, data: List[int], input: Iterable = None, output: Iterable = None
+    ):
         self.data = data.copy()
         self.pos = 0
         self.ops = {k: getattr(self, v) for k, v in self._op_to_name.items()}
-        self.input = iter(input)
-        self.output = []
+        self.input = prepare_io(input)
+        self.output = prepare_io(output)
+        self.halted = False
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: int) -> int:
         return self.data[item]
 
-    def __setitem__(self, item, value):
+    def __setitem__(self, item: int, value: int):
         self.data[item] = value
 
     def run(self):
+        if self.halted:
+            return False
+
         while True:
             modes, op = divmod(self.data[self.pos], 100)
             self.pos += 1
@@ -53,6 +65,10 @@ class Interpreter:
             try:
                 op(*args)
             except HaltExecution:
+                self.halted = True
+                break
+            except WaitInput:
+                self.pos -= 1 + op.size
                 break
 
         return True
@@ -71,7 +87,11 @@ class Interpreter:
 
     @op(3, 1, True)
     def op_read(self, dest):
-        value = next(self.input)
+        try:
+            value = self.input.popleft()
+        except IndexError:
+            raise WaitInput
+
         self.data[dest] = value
 
     @op(4, 1)
@@ -97,9 +117,52 @@ class Interpreter:
         self.data[dest] = int(a == b)
 
 
+class InterpreterGroup:
+    def __init__(self):
+        self.group: List[Interpreter] = []
+
+    @property
+    def output(self) -> deque:
+        return self.group[-1].output
+
+    def attach(self, interpreter: Interpreter):
+        if not self.group:
+            self.group.append(interpreter)
+        else:
+            self.output.extendleft(reversed(interpreter.input))
+            interpreter.input = self.output
+            self.group.append(interpreter)
+
+    def feedback(self):
+        self.output.extend(self.group[0].input)
+        self.group[0].input = self.output
+
+    def run(self):
+        while True:
+            for interpreter in self.group:
+                interpreter.run()
+
+            if any(interpreter.halted for interpreter in self.group):
+                break
+
+
+def prepare_io(value: Iterable[int] = None) -> Deque[int]:
+    if value is None:
+        return deque()
+
+    if not isinstance(value, deque):
+        return deque(value)
+
+    return value
+
+
 class HaltExecution(Exception):
     pass
 
 
-def read_intcode(name=None):
+class WaitInput(Exception):
+    pass
+
+
+def read_intcode(name=None) -> List[int]:
     return [int(x) for x in read_input(name, 2).split(",")]
