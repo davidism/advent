@@ -1,3 +1,4 @@
+from collections import defaultdict
 from collections import deque
 from typing import Deque
 from typing import Dict
@@ -32,12 +33,13 @@ class Interpreter:
     def __init__(
         self, data: List[int], input: Iterable = None, output: Iterable = None
     ):
-        self.data = data.copy()
+        self.data = defaultdict(int, enumerate(data))
         self.pos = 0
         self.ops = {k: getattr(self, v) for k, v in self._op_to_name.items()}
         self.input = prepare_io(input)
         self.output = prepare_io(output)
         self.halted = False
+        self.rel = 0
 
     def __getitem__(self, item: int) -> int:
         return self.data[item]
@@ -53,14 +55,20 @@ class Interpreter:
             modes, op = divmod(self.data[self.pos], 100)
             self.pos += 1
             op = self.ops[op]
-            args = self.data[self.pos : self.pos + op.size]
+            args = [self.data[self.pos + i] for i in range(op.size)]
             self.pos += op.size
 
             for i, arg in enumerate(args):
                 modes, mode = divmod(modes, 10)
 
-                if not mode and i != op.write:
-                    args[i] = self.data[arg]
+                if mode == 0:
+                    if i != op.write:
+                        args[i] = self.data[arg]
+                if mode == 2:
+                    if i == op.write:
+                        args[i] = self.rel + arg
+                    else:
+                        args[i] = self.data[self.rel + arg]
 
             try:
                 op(*args)
@@ -115,6 +123,10 @@ class Interpreter:
     @op(8, 3, True)
     def op_eq(self, a, b, dest):
         self.data[dest] = int(a == b)
+
+    @op(9, 1)
+    def op_rel(self, delta):
+        self.rel += delta
 
 
 class InterpreterGroup:
