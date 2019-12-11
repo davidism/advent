@@ -17,3 +17,14 @@ def bounds(points, screen=False):
         yr = range(min(ys), max(ys) + 1)
 
     return xr, yr
+
+
+def neighbors(point):
+    px, py = point
+
+    for y in range(py - 1, py + 2):
+        for x in range(px - 1, px + 2):
+            out = x, y
+
+            if out != point:
+                yield out
