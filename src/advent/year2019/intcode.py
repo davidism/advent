@@ -30,14 +30,12 @@ def find_ops(cls):
 class Interpreter:
     _op_to_name: Dict[int, str] = {}
 
-    def __init__(
-        self, data: List[int], input: Iterable = None, output: Iterable = None
-    ):
+    def __init__(self, data: List[int], input=None, output=None):
         self.data = defaultdict(int, enumerate(data))
         self.pos = 0
         self.ops = {k: getattr(self, v) for k, v in self._op_to_name.items()}
         self.input = prepare_io(input)
-        self.output = prepare_io(output)
+        self.output = prepare_io(output, output=True)
         self.halted = False
         self.rel = 0
 
@@ -158,11 +156,13 @@ class InterpreterGroup:
                 break
 
 
-def prepare_io(value: Iterable[int] = None) -> Deque[int]:
+def prepare_io(value: Iterable[int] = None, output=False) -> Deque[int]:
     if value is None:
         return deque()
 
-    if not isinstance(value, deque):
+    if not (
+        hasattr(value, "append" if output else "popleft") or isinstance(value, deque)
+    ):
         return deque(value)
 
     return value
