@@ -19,12 +19,24 @@ def bounds(points, screen=False):
     return xr, yr
 
 
-def neighbors(point):
-    px, py = point
+def neighbors(point, diag=True):
+    x, y = point
 
-    for y in range(py - 1, py + 2):
-        for x in range(px - 1, px + 2):
-            out = x, y
-
-            if out != point:
-                yield out
+    if diag:
+        yield from (
+            (x + 1, y),
+            (x + 1, y + 1),
+            (x, y + 1),
+            (x - 1, y + 1),
+            (x - 1, y),
+            (x - 1, y - 1),
+            (x, y - 1),
+            (x + 1, y - 1),
+        )
+    else:
+        yield from (
+            (x + 1, y),
+            (x, y + 1),
+            (x - 1, y),
+            (x, y - 1),
+        )
