@@ -1,10 +1,9 @@
 import time
-from contextlib import ExitStack
 
 import networkx as nx
-from blessings import Terminal
 
 from advent.draw import draw_points
+from advent.draw import prepare_screen
 from advent.grid import neighbors
 from advent.year2019.intcode import Interpreter
 from advent.year2019.intcode import read_intcode
@@ -99,12 +98,7 @@ class Robot:
             time.sleep(0.01)
 
     def run(self, display=False):
-        with ExitStack() as exit_stack:
-            if display:
-                self.display = Terminal()
-                exit_stack.enter_context(self.display.fullscreen())
-                exit_stack.enter_context(self.display.hidden_cursor())
-
+        with prepare_screen(display) as self.display:
             self.interpreter.run()
 
         if display:
@@ -143,5 +137,5 @@ class Robot:
 
 
 robot = Robot(read_intcode())
-robot.run()
+robot.run(True)
 print(*robot.oxygen(), sep="\n")

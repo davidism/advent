@@ -1,10 +1,9 @@
 import time
-from contextlib import ExitStack
 
-from blessings import Terminal
 from more_itertools import quantify
 
-from advent.grid import bounds
+from advent.draw import draw_points
+from advent.draw import prepare_screen
 from advent.year2019.intcode import Interpreter
 from advent.year2019.intcode import read_intcode
 
@@ -26,7 +25,7 @@ class Game:
     def popleft(self):
         if self.display is not None:
             self.draw()
-            time.sleep(0.01)
+            time.sleep(0.001)
 
         if self.paddle == self.ball:
             return 0
@@ -56,12 +55,7 @@ class Game:
         self.interpreter.run()
 
     def play(self, display=False):
-        with ExitStack() as exit_stack:
-            if display:
-                self.display = Terminal()
-                exit_stack.enter_context(self.display.fullscreen())
-                exit_stack.enter_context(self.display.hidden_cursor())
-
+        with prepare_screen(display) as self.display:
             self.interpreter[0] = 2
             self.interpreter.run()
 
@@ -69,14 +63,7 @@ class Game:
                 self.interpreter.run()
 
     def draw(self):
-        if self.display is not None:
-            print(self.display.clear)
-
-        xr, yr = bounds(self.pixels)
-
-        for y in yr:
-            print("".join(" #0=o"[self.pixels[x, y]] for x in xr))
-
+        draw_points(self.pixels, lambda p: " #0=o"[self.pixels[p]], term=self.display)
         print(self.score)
 
 
@@ -85,5 +72,5 @@ game.run()
 print(game.bricks)
 
 game = Game(read_intcode())
-game.play()
+game.play(True)
 print(game.score)

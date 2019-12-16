@@ -14,4 +14,4 @@ for layer in layers:
             canvas[i] = c
 
 for row in sliced(canvas, 25):
-    print("".join(" +"[p] for p in row))
+    print("".join(" #"[p] * 2 for p in row))

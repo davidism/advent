@@ -1,7 +1,7 @@
 from collections import defaultdict
 from collections import deque
 
-from advent.grid import bounds
+from advent.draw import draw_points
 from advent.year2019.intcode import Interpreter
 from advent.year2019.intcode import read_intcode
 
@@ -39,10 +39,7 @@ class Robot:
         self.interpreter.run()
 
     def draw(self):
-        xr, yr = bounds(self.panels, True)
-
-        for y in yr:
-            print("".join(["  ", "##"][self.panels[x, y]] for x in xr))
+        draw_points(self.panels, flip_y=True)
 
 
 data = read_intcode()

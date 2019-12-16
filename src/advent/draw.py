@@ -1,4 +1,22 @@
+from contextlib import contextmanager
+from contextlib import ExitStack
+
+from blessings import Terminal
+
 from advent.grid import bounds
+
+
+@contextmanager
+def prepare_screen(draw=True):
+    if not draw:
+        yield None
+    else:
+        term = Terminal()
+
+        with ExitStack() as exit_stack:
+            exit_stack.enter_context(term.fullscreen())
+            exit_stack.enter_context(term.hidden_cursor())
+            yield term
 
 
 def draw_points(points, transform=None, flip_y=False, width=2, term=None):
