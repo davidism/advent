@@ -40,3 +40,46 @@ def neighbors(point, diag=True):
             (x - 1, y),
             (x, y - 1),
         )
+
+
+def move(point, dir):
+    x, y = point
+
+    if dir == 0:
+        return x + 1, y
+    elif dir == 1:
+        return x, y + 1
+    elif dir == 2:
+        return x - 1, y
+    else:
+        return x, y - 1
+
+
+def adjacent(a, b):
+    ax, ay = a
+    bx, by = b
+
+    if ay == by:
+        if ax < bx:
+            return 0
+        elif ax > bx:
+            return 2
+    elif ax == bx:
+        if ay < by:
+            return 1
+        elif ay > by:
+            return 3
+
+
+def turns(c, n):
+    d = n - c
+    m = abs(d)
+
+    if d == 0:
+        return []
+    elif m == 1:
+        return [d]
+    elif m == 2:
+        return [1, 1]
+    else:
+        return [-1 if d > 0 else 1]
