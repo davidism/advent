@@ -1,5 +1,6 @@
 import inspect
 from itertools import chain
+from itertools import groupby
 from itertools import islice
 from pathlib import Path
 from typing import Iterable
@@ -14,14 +15,23 @@ def read_line(source: Iterable[str]) -> str:
     return next(iter(source)).strip("\n")
 
 
-def read_lines(source: Iterable[str]) -> List[str]:
+def read_lines(
+    source: Iterable[str], group: bool = False
+) -> Union[List[str], List[List[str]]]:
     if isinstance(source, str):
         source = source.splitlines()
 
-    return [l for l in (l.strip("\n") for l in source) if l]
+    source = (line.strip("\n") for line in source)
+
+    if group:
+        return [list(g) for k, g in groupby(source, key=bool) if k]
+
+    return [line for line in source if line]
 
 
-def read_input(name: str = None, back: int = 1) -> Union[str, List[str]]:
+def read_input(
+    name: str = None, back: int = 1, group=False
+) -> Union[str, List[str], List[List[str]]]:
     frame = inspect.currentframe()
 
     while frame and back:
@@ -43,7 +53,7 @@ def read_input(name: str = None, back: int = 1) -> Union[str, List[str]]:
     with path.open(encoding="utf8") as f:
         head = list(islice(f, 3))
 
-        if len(head) == 1 or len(head) == 2 and not head[1].strip():
+        if not group and len(head) == 1 or len(head) == 2 and not head[1].strip():
             return read_line(head[0])
 
-        return read_lines(chain(head, f))
+        return read_lines(chain(head, f), group=group)
