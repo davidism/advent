@@ -40,3 +40,24 @@ def neighbors(point, diag=True):
             (x - 1, y),
             (x, y - 1),
         )
+
+
+def neighbor_deltas(diag=True):
+    if diag:
+        yield from (
+            (1, 0),
+            (1, 1),
+            (0, 1),
+            (-1, 1),
+            (-1, 0),
+            (-1, -1),
+            (0, -1),
+            (1, -1),
+        )
+    else:
+        yield from (
+            (1, 0),
+            (0, 1),
+            (-1, 0),
+            (0, -1),
+        )
