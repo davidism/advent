@@ -1,10 +1,14 @@
+from functools import lru_cache
+from itertools import product
+
 from more_itertools import unzip
 
 
-def manhattan(a, b=(0, 0)):
-    x1, y1 = a
-    x2, y2 = b
-    return abs(x2 - x1) + abs(y2 - y1)
+def manhattan(p1, p2=None):
+    if p2 is None:
+        return sum(abs(n) for n in p1)
+
+    return sum(abs(n2 - n1) for n1, n2 in zip(p1, p2))
 
 
 def bounds(points, screen=False):
@@ -19,45 +23,31 @@ def bounds(points, screen=False):
     return xr, yr
 
 
-def neighbors(point, diag=True):
+@lru_cache()
+def neighbor_deltas(d=2):
+    out = []
+
+    for np in product(range(-1, 2), repeat=d):
+        if all(n == 0 for n in np):
+            continue
+
+        out.append(np)
+
+    return tuple(out)
+
+
+@lru_cache()
+def neighbors(point):
+    d = len(point)
+    out = []
+
+    for ds in neighbor_deltas(d):
+        out.append(tuple(n + nx for n, nx in zip(point, ds)))
+
+    return tuple(out)
+
+
+@lru_cache()
+def cardinal_neighbors(point):
     x, y = point
-
-    if diag:
-        yield from (
-            (x + 1, y),
-            (x + 1, y + 1),
-            (x, y + 1),
-            (x - 1, y + 1),
-            (x - 1, y),
-            (x - 1, y - 1),
-            (x, y - 1),
-            (x + 1, y - 1),
-        )
-    else:
-        yield from (
-            (x + 1, y),
-            (x, y + 1),
-            (x - 1, y),
-            (x, y - 1),
-        )
-
-
-def neighbor_deltas(diag=True):
-    if diag:
-        yield from (
-            (1, 0),
-            (1, 1),
-            (0, 1),
-            (-1, 1),
-            (-1, 0),
-            (-1, -1),
-            (0, -1),
-            (1, -1),
-        )
-    else:
-        yield from (
-            (1, 0),
-            (0, 1),
-            (-1, 0),
-            (0, -1),
-        )
+    return (x + 1, y), (x, y + 1), (x - 1, y), (x, y - 1)

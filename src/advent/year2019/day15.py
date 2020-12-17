@@ -4,7 +4,7 @@ import networkx as nx
 
 from advent.draw import draw_points
 from advent.draw import prepare_screen
-from advent.grid import neighbors
+from advent.grid import cardinal_neighbors
 from advent.year2019.intcode import Interpreter
 from advent.year2019.intcode import read_intcode
 
@@ -71,7 +71,7 @@ class Robot:
             self.point = point
 
         self.to_explore.extend(
-            p for p in neighbors(self.point, False) if p not in self.map
+            p for p in cardinal_neighbors(self.point) if p not in self.map
         )
 
         while self.to_explore and self.to_explore[-1] in self.map:
@@ -111,7 +111,7 @@ class Robot:
             (p1, p2)
             for p1, f1 in self.map.items()
             if f1 != "#"
-            for p2 in neighbors(p1, False)
+            for p2 in cardinal_neighbors(p1)
             if p2 in self.map and self.map[p2] != "#"
         )
         o = next(p for p, f in self.map.items() if f == "O")
