@@ -24,6 +24,6 @@ class Present:
         return 2 * (l + w) + self.l * self.w * self.h
 
 
-data = [Present.from_line(l) for l in read_input()]
+data = [Present.from_line(x) for x in read_input()]
 print(sum(p.paper for p in data))
 print(sum(p.ribbon for p in data))

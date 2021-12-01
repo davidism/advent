@@ -14,7 +14,10 @@ class Reindeer:
     def from_line(cls, line):
         line = line.split()
         return cls(
-            name=line[0], speed=int(line[3]), fly=int(line[6]), rest=int(line[13]),
+            name=line[0],
+            speed=int(line[3]),
+            fly=int(line[6]),
+            rest=int(line[13]),
         )
 
     def distance(self, t):

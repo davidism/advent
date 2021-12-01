@@ -96,7 +96,7 @@ class Interpreter:
         try:
             value = self.input.popleft()
         except IndexError:
-            raise WaitInput
+            raise WaitInput from None
 
         self.data[dest] = value
 
