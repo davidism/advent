@@ -4,8 +4,8 @@ from itertools import groupby
 from itertools import islice
 from pathlib import Path
 from typing import Iterable
-from typing import List
-from typing import Union
+from typing import Literal
+from typing import overload
 
 
 def read_line(source: Iterable[str]) -> str:
@@ -15,9 +15,19 @@ def read_line(source: Iterable[str]) -> str:
     return next(iter(source)).strip("\n")
 
 
+@overload
+def read_lines(source: Iterable[str], group: Literal[False] = ...) -> list[str]:
+    ...
+
+
+@overload
+def read_lines(source: Iterable[str], group: Literal[True] = ...) -> list[list[str]]:
+    ...
+
+
 def read_lines(
     source: Iterable[str], group: bool = False
-) -> Union[List[str], List[List[str]]]:
+) -> list[str] | list[list[str]]:
     if isinstance(source, str):
         source = source.splitlines()
 
@@ -29,9 +39,23 @@ def read_lines(
     return [line for line in source if line]
 
 
+@overload
 def read_input(
-    name: str = None, back: int = 1, group=False
-) -> Union[str, List[str], List[List[str]]]:
+    name: str = None, back: int = 1, group: Literal[False] = ...
+) -> str | list[str]:
+    ...
+
+
+@overload
+def read_input(
+    name: str = None, back: int = 1, group: Literal[True] = ...
+) -> list[list[str]]:
+    ...
+
+
+def read_input(
+    name: str = None, back: int = 1, group: bool = False
+) -> str | list[str] | list[list[str]]:
     frame = inspect.currentframe()
 
     while frame and back:
