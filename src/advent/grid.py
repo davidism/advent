@@ -3,6 +3,9 @@ from itertools import product
 
 from more_itertools import unzip
 
+TPoint2 = tuple[int, int]
+TGrid2 = dict[TPoint2, int]
+
 
 def manhattan(p1, p2=None):
     if p2 is None:
