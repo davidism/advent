@@ -1,0 +1,20 @@
+[project]
+name = "advent"
+version = "1.0.0"
+description = "davidism's Advent of Code solutions."
+readme = "README.md"
+license = {text = "BlueOak-1.0.0"}
+authors = [
+    {name = "David Lord", email = "davidism@gmail.com"},
+]
+requires-python = ">=3.11"
+dependencies = [
+    "attrs",
+    "blessings",
+    "more-itertools",
+    "networkx",
+]
+
+[build-system]
+requires = ["pdm-pep517>=1.0.0"]
+build-backend = "pdm.pep517.api"
